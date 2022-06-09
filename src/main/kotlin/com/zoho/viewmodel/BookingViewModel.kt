@@ -9,6 +9,11 @@ import com.zoho.view.BookingView
 class BookingViewModel {
     var theatres: MutableList<TheatreModel> = THEATRES
 
+
+    fun getTheatresList(): MutableList<TheatreModel> {
+        return theatres
+    }
+
     fun bookTicket(seats: Int, theatreId: Int, movieId: Int, user: UserModel): String {
         theatres.find { it.id == theatreId }?.let { theatre ->
             theatre.movies.find { it.id == movieId }?.let { movie ->
