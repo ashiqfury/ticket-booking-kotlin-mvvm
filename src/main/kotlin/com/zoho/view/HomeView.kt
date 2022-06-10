@@ -3,43 +3,40 @@ package com.zoho.view
 import java.util.Scanner
 
 class HomeView {
-
     private val userView = UserView()
     private val adminView = AdminView()
 
-    fun initialChoices() {
-        val scanner = Scanner(System.`in`)
-        do {
-
-            println("""
-        *----------------*
-        | Initial screen |
-        |----------------|
-        | 1. User        |
-        | 2. Admin       |
-        | 3. Exit        |
-        *----------------*
-            """.trimIndent())
-            println("Enter choice: ")
-            val choice = scanner.nextInt()
-            homeNavigation(choice)
-        } while (choice != 3)
+    private enum class HomeChoices(val text: String) {
+        USER("User"),
+        ADMIN("Admin"),
+        EXIT("Exit")
     }
 
-    private fun homeNavigation(paramChoice: Int) {
-        when (paramChoice) {
-            1 -> userChoices()
-            2 -> adminChoices()
+    fun homeChoices() {
+        val scanner = Scanner(System.`in`)
+        do {
+            HomeChoices.values().forEach {
+                println("${it.ordinal + 1}. ${it.text}")
+            }
+            println("Enter choice: ")
+            val choice = scanner.nextInt()
+            homeNavigation(choice - 1)
+        } while (choice != HomeChoices.values().size)
+    }
+
+    private fun homeNavigation(choice: Int) {
+        when (HomeChoices.values()[choice]) {
+            HomeChoices.USER -> userChoices()
+            HomeChoices.ADMIN -> adminChoices()
+            HomeChoices.EXIT -> return
         }
     }
 
     private fun userChoices() {
         userView.userChoices()
-//        UserView().userChoices()
     }
 
-    private fun adminChoices()  {
+    private fun adminChoices() {
         adminView.adminChoices()
-//        AdminView().adminChoices()
     }
 }

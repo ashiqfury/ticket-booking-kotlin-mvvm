@@ -9,6 +9,7 @@ import java.util.*
 class AdminView {
     private val adminViewModel = AdminViewModel()
     private val theatreView = TheatreView()
+    private val movieView = MovieView()
     private val bookingView = BookingView()
     private enum class AdminChoices(val text: String) {
         SHOW_THEATRES_LIST("Show theatres list"),
@@ -18,7 +19,7 @@ class AdminView {
         ADD_MOVIE("Add a new movie"),
         REMOVE_MOVIE("Remove a movie"),
         BOOK_TICKET("Book a ticket"),
-        EXIT("Exit")
+        BACK("Back")
     }
 
     private fun adminAddNewTheatre() {
@@ -43,7 +44,7 @@ class AdminView {
         theatreView.showTheatresNames()
         println("Enter theatre id: ")
         val theatreId = scanner.nextInt()
-        if (bookingView.bookingViewModel.theatres.any { it.id == theatreId }) {
+        if (theatreView.theatreViewModel.getTheatresList().any { it.id == theatreId }) {
             val result = adminViewModel.adminRemoveTheatre(theatreId)
             println(result)
         } else println("Invalid theatre id!")
@@ -58,7 +59,7 @@ class AdminView {
         theatreView.showTheatresNames()
         println("Enter theatre id: ")
         val theatreId = scanner.nextInt()
-        if (bookingView.bookingViewModel.theatres.any { it.id == theatreId }) {
+        if (theatreView.theatreViewModel.getTheatresList().any { it.id == theatreId }) {
             println("Enter movie name: ")
             val movieName = scanner.next()
 
@@ -86,7 +87,7 @@ class AdminView {
             println("Enter ticket price: ")
             val price = scanner.nextInt()
             if (price < 0) return println("Price must be greater than 0!")
-            val result = adminViewModel.adminAddNewMovie(theatreId, movieName, genre, language, showTime, price)
+            val result = adminViewModel.adminAddNewMovie(movieName, genre, language, showTime, price)
             println(result)
         } else println("Invalid theatre id!")
     }
@@ -94,19 +95,20 @@ class AdminView {
     private fun adminRemoveMovie() {
         val scanner = Scanner(System.`in`)
 
-        theatreView.showTheatresNames()
-        println("Enter theatre id: ")
-        val theatreId = scanner.nextInt()
-        bookingView.bookingViewModel.theatres.find { it.id == theatreId }?.let {
-            theatreView.showAllMoviesNames(theatreId, bookingView.bookingViewModel.theatres)
+//        theatreView.showTheatresNames()
+//        println("Enter theatre id: ")
+//        val theatreId = scanner.nextInt()
+//        theatreView.theatreViewModel.getTheatresList().find { it.id == theatreId }?.let {
+//            movieView.showAllMoviesNames(theatreId, theatreView.theatreViewModel.getTheatresList())
+        movieView.showAllMovies()
             println("Enter movie id: ")
             val movieId = scanner.nextInt()
-            if (bookingView.bookingViewModel.theatres[theatreId - 1].movies.any { it.id == movieId }) {
-                val result = adminViewModel.adminRemoveMovie(theatreId, movieId)
+//            if (theatreView.theatreViewModel.getTheatresList()[theatreId - 1].movies.any { it.id == movieId }) {
+                val result = adminViewModel.adminRemoveMovie(movieId)
                 println(result)
-            } else println("Invalid movie id!")
+//            } else println("Invalid movie id!")
 
-        } ?: return println("Invalid movie id")
+//        } ?: return println("Invalid movie id")
     }
 
     fun adminChoices() {
@@ -119,21 +121,21 @@ class AdminView {
                     println("${it.ordinal + 1}. ${it.text}")
                 }
                 val choice = scanner.nextInt()
-                adminMakeDecision(choice)
-            } while(choice != 8)
+                adminNavigation(choice - 1)
+            } while(choice != AdminChoices.values().size)
         } else println("Password incorrect!")
     }
 
-    private fun adminMakeDecision(paramChoice: Int) {
-        when (paramChoice) {
-            1 -> theatreView.showAllTheatres()
-            2 -> theatreView.showAllMovies()
-            3 -> adminAddNewTheatre()
-            4 -> adminRemoveTheatre()
-            5 -> adminAddNewMovie()
-            6 -> adminRemoveMovie()
-            7 -> bookingView.getBookingDetails()
-            else -> println("Something went wrong!")
+    private fun adminNavigation(choice: Int) {
+        when (AdminChoices.values()[choice]) {
+            AdminChoices.SHOW_THEATRES_LIST -> theatreView.showAllTheatres()
+            AdminChoices.SHOW_MOVIES_LIST -> movieView.showAllMovies()
+            AdminChoices.ADD_THEATRE -> adminAddNewTheatre()
+            AdminChoices.REMOVE_THEATRE -> adminRemoveTheatre()
+            AdminChoices.ADD_MOVIE -> adminAddNewMovie()
+            AdminChoices.REMOVE_MOVIE -> adminRemoveMovie()
+            AdminChoices.BOOK_TICKET -> bookingView.getBookingDetails()
+            AdminChoices.BACK -> println("Something went wrong!")
         }
     }
 }

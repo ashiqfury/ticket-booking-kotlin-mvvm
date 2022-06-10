@@ -2,60 +2,96 @@ package com.zoho.view
 
 import com.zoho.model.*
 import com.zoho.viewmodel.BookingViewModel
+import com.zoho.viewmodel.TheatreViewModel
+import java.lang.reflect.MalformedParameterizedTypeException
 import java.util.*
 
-open class BookingView {
+class BookingView {
     val bookingViewModel = BookingViewModel()
-    private val theatreView = TheatreView()
+    val theatreView = TheatreView()
+    val movieView = MovieView()
 
-    fun getBookingDetails() {
+    fun getBookingDetails(paramTheatreId: Int? = null, paramMovieId: Int? = null) {
+        val theatreId = paramTheatreId ?:getTheatreIdWithShowTheatres()
+        println("Second id: $theatreId")
+        val movieId = paramMovieId ?: getMovieIdWithShowMovies()
+        val seats = getSeatsCount()
+        val username = getUsername()
+        val phoneNumber = getUserNumber()
+        bookingViewModel.bookTicket(seats, theatreId, movieId, username, phoneNumber)?.let {
+            showBookedDetails(it)
+        }
+    }
+
+    fun getTheatreId(): Int {
         val scanner = Scanner(System.`in`)
-
-        println("Enter your name: ")
-        val name = scanner.next()
-        println("Enter your phone number: ")
-        val number = scanner.nextLong()
-        val user = UserModel(name, number)
-
-        theatreView.showTheatresNames()
         println("Enter theatre id: ")
-        val theatreId = scanner.nextInt()
-        theatreView.showAllMoviesNames(theatreId, bookingViewModel.theatres)
+        return scanner.nextInt()
+    }
+
+    fun getTheatreIdWithShowTheatres(): Int {
+//        theatreView.showTheatresNames()
+        theatreView.showAllTheatres()
+        val scanner = Scanner(System.`in`)
+        println("Enter theatre id: ")
+        return scanner.nextInt()
+    }
+
+    fun getMovieId(): Int {
+        val scanner = Scanner(System.`in`)
+        movieView.printAllMovies()
         println("Enter movie id: ")
-        val movieId = scanner.nextInt()
-        if (bookingViewModel.theatres[theatreId - 1].movies.any {it.id == movieId}) {
-            println("Enter number of seats: ")
-            val seats = scanner.nextInt()
-            val message = bookingViewModel.bookTicket(seats, theatreId, movieId, user)
-            println(message)
-        } else return println("Invalid movie id!")
+        return scanner.nextInt()
+    }
+
+    fun getMovieIdWithShowMovies(): Int {
+        val scanner = Scanner(System.`in`)
+//        movieView.showAllMoviesNames()
+        movieView.showAllMovies()
+        println("Enter movie id: ")
+        return scanner.nextInt()
+    }
+
+    fun getSeatsCount(): Int {
+        val scanner = Scanner(System.`in`)
+        println("Enter number of seats: ")
+        return scanner.nextInt()
+    }
+
+    fun getUsername(): String {
+        val scanner = Scanner(System.`in`)
+        println("Enter your name: ")
+        return scanner.next()
+    }
+
+    fun getUserNumber(): Long {
+        val scanner = Scanner(System.`in`)
+        println("Enter your phone number: ")
+        return scanner.nextLong()
     }
 
     fun showBookedDetails(bookDetail: BookModel) {
-
-        val (theatre, movie, seats, user) = bookDetail
-
+        val (theatre, movie, seats, username, phoneNumber) = bookDetail
         println(
             """
-                    Booking successful! 🔥
+                Booking successful! 🔥
+                        
+                DETAILS:
+                User name: $username
+                Phone number: $phoneNumber
+                Theatre id: ${theatre.id}
+                Theatre name: ${theatre.name}
+                Location: ${theatre.location}
+                Movie id: ${movie.id}
+                Movie name: ${movie.name}
+                Genre: ${movie.genre}
+                Language: ${movie.language}
+                Ticket Price: Rs. ${movie.price}/-
+                Total Price: Rs. ${movie.price * seats}/-
+                Time: ${movie.showTime}
 
-                        DETAILS:
-                        User name: ${user.username}
-                        Phone number: ${user.phoneNumber}
-                        Theatre id: ${theatre.id}
-                        Theatre name: ${theatre.name}
-                        Location: ${theatre.location}
-                        Movie id: ${movie.id}
-                        Movie name: ${movie.name}
-                        Genre: ${movie.genre}
-                        Language: ${movie.language}
-                        Ticket Price: Rs. ${movie.price}/-
-                        Total Price: Rs. ${movie.price * seats}/-
-                        Time: ${movie.showTime}
-
-                    Thank you...!
-
-                    """.trimIndent()
+                Thank you...!
+            """.trimIndent()
         )
     }
 }
